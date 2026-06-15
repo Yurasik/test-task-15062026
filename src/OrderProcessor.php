@@ -15,24 +15,18 @@ class OrderProcessor
         private array              $payments,
         private DiscountCalculator $discountCalculator,
         private LoggerInterface    $logger,
+        private OrderFormatter     $formatter,
     ) {}
 
     public function process(Order $order): string
     {
         $payment  = $this->resolvePayment($order->paymentMethod);
         $discount = $this->discountCalculator->calculate($order);
-        $finalAmount = $order->amount - $discount;
 
         $payment->process($order);
         $this->logger->log("Order #{$order->id} processed");
 
-        return implode(PHP_EOL, [
-            "Order #{$order->id}",
-            "Amount: {$order->amount}",
-            "Discount: {$discount}",
-            "Final amount: {$finalAmount}",
-            "Payment: {$this->paymentLabel($order->paymentMethod)}",
-        ]);
+        return $this->formatter->format($order, $discount, $this->paymentLabel($order->paymentMethod));
     }
 
     private function resolvePayment(string $method): PaymentInterface

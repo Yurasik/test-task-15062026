@@ -8,8 +8,13 @@ use App\Order;
 
 class MediumOrderDiscount implements DiscountRuleInterface
 {
+    public function __construct(
+        private float $threshold = 500.0,
+        private float $rate      = 0.05,
+    ) {}
+
     public function getDiscount(Order $order): float
     {
-        return $order->amount > 500 ? 0.05 : 0.0;
+        return $order->amount > $this->threshold ? $this->rate : 0.0;
     }
 }

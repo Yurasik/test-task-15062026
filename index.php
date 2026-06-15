@@ -2,24 +2,14 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/src/Order.php';
-require_once __DIR__ . '/src/Payment/PaymentInterface.php';
-require_once __DIR__ . '/src/Payment/CardPayment.php';
-require_once __DIR__ . '/src/Payment/PaypalPayment.php';
-require_once __DIR__ . '/src/Payment/CashPayment.php';
-require_once __DIR__ . '/src/Discount/DiscountRuleInterface.php';
-require_once __DIR__ . '/src/Discount/HighOrderDiscount.php';
-require_once __DIR__ . '/src/Discount/MediumOrderDiscount.php';
-require_once __DIR__ . '/src/Discount/DiscountCalculator.php';
-require_once __DIR__ . '/src/Logger/LoggerInterface.php';
-require_once __DIR__ . '/src/Logger/FileLogger.php';
-require_once __DIR__ . '/src/OrderProcessor.php';
+require_once __DIR__ . '/src/autoload.php';
 
 use App\Discount\DiscountCalculator;
 use App\Discount\HighOrderDiscount;
 use App\Discount\MediumOrderDiscount;
 use App\Logger\FileLogger;
 use App\Order;
+use App\OrderFormatter;
 use App\OrderProcessor;
 use App\Payment\CardPayment;
 use App\Payment\CashPayment;
@@ -53,10 +43,11 @@ $processor = new OrderProcessor(
         'cash'   => new CashPayment(),
     ],
     discountCalculator: new DiscountCalculator([
-        new HighOrderDiscount(),
-        new MediumOrderDiscount(),
+        new HighOrderDiscount(threshold: 1000, rate: 0.10),
+        new MediumOrderDiscount(threshold: 500, rate: 0.05),
     ]),
     logger: new FileLogger(__DIR__ . '/logs/orders.log'),
+    formatter: new OrderFormatter(),
 );
 
 foreach ($orders as $data) {
