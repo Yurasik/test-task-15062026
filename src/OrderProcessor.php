@@ -20,7 +20,17 @@ class OrderProcessor
 
     public function process(Order $order): string
     {
-        $payment  = $this->resolvePayment($order->paymentMethod);
+        try {
+            $payment = $this->resolvePayment($order->paymentMethod);
+        } catch (\InvalidArgumentException $e) {
+            $this->logger->log("Order #{$order->id} failed: {$e->getMessage()}");
+
+            return implode(PHP_EOL, [
+                "Order #{$order->id}",
+                "Error: {$e->getMessage()}",
+            ]);
+        }
+
         $discount = $this->discountCalculator->calculate($order);
 
         $payment->process($order);

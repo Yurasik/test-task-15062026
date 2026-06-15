@@ -13,7 +13,7 @@ class OrderFormatter
         return implode(PHP_EOL, [
             "Order #{$order->id}",
             "Amount: {$order->amount}",
-            "Discount: {$discount}",
+            "Discount: " . ($discount > 0 ? $discount : 'none'),
             "Final amount: {$finalAmount}",
             "Payment: {$paymentLabel}",
         ]);
